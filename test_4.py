@@ -1,23 +1,48 @@
-import subprocess
+# test_4.py
 
-def test_debug4():
-    try:
-        result = subprocess.run(["python3", "main.py"], capture_output=True, text=True)
-        output = result.stdout.lower()
+import ast
 
-        if "welcome to" in output and "hawkins" not in output:
-            print("❌ Welcome message is using the wrong variable (age instead of school).")
-        else:
-            print("✅ Welcome message is correct.")
+# Load student's code
+filename = "4Debug.py"
+try:
+    with open(filename, "r") as f:
+        tree = ast.parse(f.read(), filename=filename)
+except FileNotFoundError:
+    print("❌ Could not find 4Debug.py file.")
+    exit()
 
-        if "pupil name" in output and "max" not in output:
-            print("❌ Pupil name is incorrect (check variables used).")
-        else:
-            print("✅ Pupil name is correct.")
+used_pupil_name_correctly = False
+used_age_correctly = False
 
-    except Exception as e:
-        print("❌ Your code crashed. Check you’re using variables correctly.")
-        print("Error:", e)
+# Scan the AST for print() usage with correct variable names
+for node in ast.walk(tree):
+    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == 'print':
+        for arg in node.args:
+            if isinstance(arg, ast.BinOp) and isinstance(arg.op, ast.Add):
+                right = arg.right
+                if isinstance(right, ast.Name) and right.id == "pupilName":
+                    used_pupil_name_correctly = True
+                elif (
+                    isinstance(right, ast.Call)
+                    and isinstance(right.func, ast.Name)
+                    and right.func.id == "str"
+                    and isinstance(right.args[0], ast.Name)
+                    and right.args[0].id == "age"
+                ):
+                    used_age_correctly = True
 
-if __name__ == "__main__":
-    test_debug4()
+# Feedback
+if used_pupil_name_correctly:
+    print("✅ You used the correct variable: pupilName")
+else:
+    print("❌ You didn't use the variable pupilName")
+
+if used_age_correctly:
+    print("✅ You used the correct variable: age")
+else:
+    print("❌ You didn't use the variable age")
+
+if used_pupil_name_correctly and used_age_correctly:
+    print("🎉 All key variables used correctly! Well done.")
+else:
+    print("🔍 Double-check that you are using the correct variable names.")

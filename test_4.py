@@ -1,48 +1,36 @@
 # test_4.py
 
-import ast
+import subprocess
 
-# Load student's code
-filename = "4Debug.py"
+expected_lines = [
+    "Welcome to Hawkins High School",
+    "Pupil name: Max Myles",
+    "Pupil age: 15"
+]
+
 try:
-    with open(filename, "r") as f:
-        tree = ast.parse(f.read(), filename=filename)
-except FileNotFoundError:
-    print("❌ Could not find 4Debug.py file.")
+    output = subprocess.check_output(["python3", "4Debug.py"], stderr=subprocess.STDOUT)
+    output = output.decode("utf-8").strip().splitlines()
+except subprocess.CalledProcessError as e:
+    print("❌ Your program crashed. Check your code carefully.")
+    print(e.output.decode("utf-8"))
     exit()
 
-used_pupil_name_correctly = False
-used_age_correctly = False
+# Clean up the output (remove blank lines)
+cleaned_output = [line.strip() for line in output if line.strip() != ""]
 
-# Scan the AST for print() usage with correct variable names
-for node in ast.walk(tree):
-    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == 'print':
-        for arg in node.args:
-            if isinstance(arg, ast.BinOp) and isinstance(arg.op, ast.Add):
-                right = arg.right
-                if isinstance(right, ast.Name) and right.id == "pupilName":
-                    used_pupil_name_correctly = True
-                elif (
-                    isinstance(right, ast.Call)
-                    and isinstance(right.func, ast.Name)
-                    and right.func.id == "str"
-                    and isinstance(right.args[0], ast.Name)
-                    and right.args[0].id == "age"
-                ):
-                    used_age_correctly = True
+# Check for each expected message
+results = []
+for line in expected_lines:
+    if any(line in actual for actual in cleaned_output):
+        results.append(f"✅ {line}")
+    else:
+        results.append(f"❌ Missing or incorrect: {line}")
 
-# Feedback
-if used_pupil_name_correctly:
-    print("✅ You used the correct variable: pupilName")
+# Print results
+print("\n".join(results))
+
+if all(r.startswith("✅") for r in results):
+    print("🎉 All key messages were printed correctly. Well done!")
 else:
-    print("❌ You didn't use the variable pupilName")
-
-if used_age_correctly:
-    print("✅ You used the correct variable: age")
-else:
-    print("❌ You didn't use the variable age")
-
-if used_pupil_name_correctly and used_age_correctly:
-    print("🎉 All key variables used correctly! Well done.")
-else:
-    print("🔍 Double-check that you are using the correct variable names.")
+    print("🔍 Check your print statements carefully and try again.")

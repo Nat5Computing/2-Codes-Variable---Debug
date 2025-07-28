@@ -3,7 +3,7 @@ import subprocess
 def test_debug3():
     try:
         result = subprocess.run(["python3", "3Debug.py"], capture_output=True, text=True)
-        output = result.stdout.lower()  # make comparison case-insensitive
+        output = result.stdout.lower()
 
         checks = {
             "welcome to": "✅ Welcome message displayed.",
@@ -11,20 +11,34 @@ def test_debug3():
             "pupil age": "✅ Pupil age displayed."
         }
 
-        success = True
-        for phrase, message in checks.items():
-            if phrase in output:
-                print(message)
-            else:
-                print(f"❌ Missing or incorrect: {message[2:].replace('✅', '').strip()}")
-                success = False
+        failed_messages = {
+            "welcome to": "❌ Missing or incorrect: Welcome message not found.",
+            "pupil name": "❌ Missing or incorrect: Pupil name not found in output.",
+            "pupil age": "❌ Missing or incorrect: Pupil age not found in output."
+        }
 
-        if success:
-            print("\n🎉 All key messages were printed correctly. Well done!")
+        print()
+        passed = 0
+
+        for phrase in checks:
+            if phrase in output:
+                print(checks[phrase])
+                passed += 1
+            else:
+                print(failed_messages[phrase])
+
+        print()
+
+        if passed == len(checks):
+            print("🎉 All key messages were printed correctly. Well done!")
+        elif passed == 0:
+            print("🔍 None of the key outputs were correct. Review all print statements.")
         else:
-            print("\n🔍 Check your print statements carefully and try again.")
+            print(f"🔧 {passed} out of {len(checks)} messages printed correctly. Keep going!")
+
     except Exception as e:
-        print("❌ Your code crashed. Check for missing quotation marks, brackets, or typos.")
+        print("💥 Your program crashed before finishing.")
+        print("🔎 Tip: Check for missing brackets, quotes, or typos.")
         print("Error:", e)
 
 if __name__ == "__main__":

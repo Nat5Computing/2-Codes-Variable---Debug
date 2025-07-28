@@ -3,18 +3,18 @@ import subprocess
 def test_debug3():
     try:
         result = subprocess.run(["python3", "3Debug.py"], capture_output=True, text=True)
-        output = result.stdout.lower()
+        output = result.stdout
 
         checks = {
-            "welcome to": "✅ Welcome message displayed.",
-            "pupil name": "✅ Pupil name displayed.",
-            "pupil age": "✅ Pupil age displayed."
+            "Welcome to": "✅ Welcome message displayed.",
+            "Pupil name:": "✅ Pupil name displayed.",
+            "Pupil age:": "✅ Pupil age displayed."
         }
 
         failed_messages = {
-            "welcome to": "❌ Missing or incorrect: Welcome message not found.",
-            "pupil name": "❌ Missing or incorrect: Pupil name not found in output.",
-            "pupil age": "❌ Missing or incorrect: Pupil age not found in output."
+            "Welcome to": "❌ Missing or incorrect: Welcome message not found.",
+            "Pupil name:": "❌ Missing or incorrect: Pupil name not found in output.",
+            "Pupil age:": "❌ Missing or incorrect: Pupil age not found in output."
         }
 
         print()
